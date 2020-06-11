@@ -24,7 +24,7 @@ class Config(object):
     cleanup = False
     run_once = False
     dry_run = False
-	monitor_only = False
+    monitor_only = False
     self_update = False
     label_enable = False
     labels_only = False
