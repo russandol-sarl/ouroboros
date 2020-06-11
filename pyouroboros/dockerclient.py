@@ -320,7 +320,7 @@ class Container(BaseImageObject):
                     self.notification_manager.send(
                         container_tuples=[(container.name, current_image, latest_image)],
                         socket=self.socket,
-                        kind='update'
+                        kind='monitor'
                     )
                 continue
 
@@ -453,7 +453,7 @@ class Service(BaseImageObject):
                     self.notification_manager.send(
                         container_tuples=[(service, sha256[-10], latest_image)],
                         socket=self.socket,
-                        kind='update',
+                        kind='monitor',
                         mode='service'
                     )
                     continue
