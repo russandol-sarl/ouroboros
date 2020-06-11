@@ -318,7 +318,7 @@ class Container(BaseImageObject):
                 repo_digest_id = current_image.attrs['RepoDigests'][0].split('@')[1]
                 if repo_digest_id != latest_image.id:
                     self.notification_manager.send(
-                        container_tuples=[container.name, current_image, latest_image],
+                        container_tuples=[(container.name, current_image, latest_image)],
                         socket=self.socket,
                         kind='update'
                     )
@@ -451,7 +451,7 @@ class Service(BaseImageObject):
                 if self.config.monitor_only:
                     # Ugly hack for repo digest
                     self.notification_manager.send(
-                        container_tuples=[service.name, sha256[-10], latest_image],
+                        container_tuples=[(service, sha256[-10], latest_image)],
                         socket=self.socket,
                         kind='update',
                         mode='service'
