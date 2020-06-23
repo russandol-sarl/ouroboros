@@ -451,7 +451,7 @@ class Service(BaseImageObject):
                 if self.config.monitor_only:
                     # Ugly hack for repo digest
                     self.notification_manager.send(
-                        container_tuples=[(service, sha256[-10], latest_image)],
+                        container_tuples=[(service, sha256[-10:], latest_image)],
                         socket=self.socket,
                         kind='monitor',
                         mode='service'

@@ -50,7 +50,7 @@ class NotificationManager(object):
             ]
             body_fields.extend(
                 [
-                    "{} updated from {} to {}".format(
+                    "{} could be updated from {} to {}".format(
                         container.name,
                         old_image if mode == 'service' else old_image.short_id.split(':')[1],
                         new_image.short_id.split(':')[1]
