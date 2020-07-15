@@ -297,6 +297,7 @@ class Container(BaseImageObject):
 
     def update(self):
         updated_count = 0
+        notif_kind = 'update'
         try:
             updateable, depends_on_containers, hard_depends_on_containers = self.socket_check()
         except TypeError:
@@ -314,14 +315,8 @@ class Container(BaseImageObject):
                 continue
 
             if self.config.monitor_only:
-                # Ugly hack for repo digest
-                repo_digest_id = current_image.attrs['RepoDigests'][0].split('@')[1]
-                if repo_digest_id != latest_image.id:
-                    self.notification_manager.send(
-                        container_tuples=[(container.name, current_image, latest_image)],
-                        socket=self.socket,
-                        kind='monitor'
-                    )
+                updated_count += 1
+                notif_kind = 'monitor'
                 continue
 
             if container.name in ['ouroboros', 'ouroboros-updated']:
@@ -358,7 +353,7 @@ class Container(BaseImageObject):
             self.recreate(container, container.image)
 
         if updated_count > 0:
-            self.notification_manager.send(container_tuples=updateable, socket=self.socket, kind='update')
+            self.notification_manager.send(container_tuples=updateable, socket=self.socket, kind=notif_kind)
 
     def update_self(self, count=None, old_container=None, me_list=None, new_image=None):
         if count == 2:
@@ -419,6 +414,7 @@ class Service(BaseImageObject):
         return self._pull(tag)
 
     def update(self):
+        notif_kind = 'service'
         updated_service_tuples = []
         self.monitored = self.monitor_filter()
 
@@ -448,19 +444,13 @@ class Service(BaseImageObject):
                     self.logger.info('dry run : %s would be updated', service.name)
                     continue
 
-                if self.config.monitor_only:
-                    # Ugly hack for repo digest
-                    self.notification_manager.send(
-                        container_tuples=[(service, sha256[-10:], latest_image)],
-                        socket=self.socket,
-                        kind='monitor',
-                        mode='service'
-                    )
-                    continue
-
                 updated_service_tuples.append(
                     (service, sha256[-10:], latest_image)
                 )
+
+                if self.config.monitor_only:
+                    notif_kind = 'monitor'
+                    continue
 
                 if 'ouroboros' in service.name and self.config.self_update:
                     self.data_manager.total_updated[self.socket] += 1
@@ -480,6 +470,6 @@ class Service(BaseImageObject):
             self.notification_manager.send(
                 container_tuples=updated_service_tuples,
                 socket=self.socket,
-                kind='update',
+                kind=notif_kind,
                 mode='service'
             )
